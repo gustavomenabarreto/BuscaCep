@@ -1,0 +1,32 @@
+object DMCon: TDMCon
+  Height = 480
+  Width = 640
+  object FDCon: TFDConnection
+    Params.Strings = (
+      'Database=D:\Fontes\GustavoCep\bd\db.db'
+      'DriverID=sQLite')
+    Connected = True
+    LoginPrompt = False
+    Left = 144
+    Top = 48
+  end
+  object QryEndereco: TFDQuery
+    Connection = FDCon
+    SQL.Strings = (
+      'Select * from tab_endereco')
+    Left = 216
+    Top = 48
+  end
+  object PrvEndereco: TDataSetProvider
+    DataSet = QryEndereco
+    Left = 273
+    Top = 48
+  end
+  object CdsEndereco: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'PrvEndereco'
+    Left = 328
+    Top = 47
+  end
+end

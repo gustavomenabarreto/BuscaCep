@@ -1,0 +1,25 @@
+unit uCep.DB.Controller;
+
+interface
+
+uses
+  Datasnap.DBClient, uCep.DB.Model;
+
+type
+  TCepDBController = class
+  public
+    class Procedure SalverCeps(ACds: TClientDataSet);
+  end;
+
+implementation
+
+{ TCepDBController }
+
+class procedure TCepDBController.SalverCeps(ACds: TClientDataSet);
+var IModel: ICepDBModel;
+begin
+  IModel := TCepDBModel.Create;
+  IModel.SalverCeps(ACds);
+end;
+
+end.

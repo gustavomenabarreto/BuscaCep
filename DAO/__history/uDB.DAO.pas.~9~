@@ -1,0 +1,59 @@
+unit uDB.DAO;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool,
+  FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, Data.DB,
+  FireDAC.Comp.Client, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Datasnap.DBClient, Datasnap.Provider;
+
+type
+  TDMCon = class(TDataModule)
+    FDCon: TFDConnection;
+    QryEndereco: TFDQuery;
+    PrvEndereco: TDataSetProvider;
+    CdsEndereco: TClientDataSet;
+    CdsEnderecoId: TAutoIncField;
+    CdsEnderecoCep: TWideMemoField;
+    CdsEnderecoLogradouro: TWideMemoField;
+    CdsEnderecoComplemento: TWideMemoField;
+    CdsEnderecoUnidade: TWideMemoField;
+    CdsEnderecoBairro: TWideMemoField;
+    CdsEnderecoLocalidade: TWideMemoField;
+    CdsEnderecoUf: TWideMemoField;
+    CdsEnderecoEstado: TWideMemoField;
+    CdsEnderecoRegiao: TWideMemoField;
+    CdsEnderecoIbge: TWideMemoField;
+    CdsEnderecoGia: TWideMemoField;
+    CdsEnderecoDdd: TWideMemoField;
+    CdsEnderecoSiafi: TWideMemoField;
+    QryEnderecoId: TFDAutoIncField;
+    QryEnderecoCep: TWideMemoField;
+    QryEnderecoLogradouro: TWideMemoField;
+    QryEnderecoComplemento: TWideMemoField;
+    QryEnderecoUnidade: TWideMemoField;
+    QryEnderecoBairro: TWideMemoField;
+    QryEnderecoLocalidade: TWideMemoField;
+    QryEnderecoUf: TWideMemoField;
+    QryEnderecoEstado: TWideMemoField;
+    QryEnderecoRegiao: TWideMemoField;
+    QryEnderecoIbge: TWideMemoField;
+    QryEnderecoGia: TWideMemoField;
+    QryEnderecoDdd: TWideMemoField;
+    QryEnderecoSiafi: TWideMemoField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  DMCon: TDMCon;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+end.

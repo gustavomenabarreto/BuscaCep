@@ -1,0 +1,218 @@
+object FrBuscaCep: TFrBuscaCep
+  Left = 0
+  Top = 0
+  Caption = 'Busca Cep'
+  ClientHeight = 365
+  ClientWidth = 821
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  OnClose = FormClose
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  DesignSize = (
+    821
+    365)
+  TextHeight = 15
+  object PnlHeader: TPanel
+    Left = 8
+    Top = 0
+    Width = 805
+    Height = 65
+    Anchors = [akLeft, akTop, akRight]
+    Color = clWhite
+    ParentBackground = False
+    TabOrder = 0
+    object LblCepRua: TLabel
+      Left = 292
+      Top = 24
+      Width = 21
+      Height = 15
+      Caption = 'Cep'
+    end
+    object EdtCep: TEdit
+      Left = 319
+      Top = 21
+      Width = 98
+      Height = 23
+      NumbersOnly = True
+      TabOrder = 0
+      OnExit = EdtCepExit
+    end
+    object BtnBuscar: TButton
+      Left = 702
+      Top = 20
+      Width = 75
+      Height = 25
+      Caption = 'Buscar'
+      TabOrder = 3
+      OnClick = BtnBuscarClick
+    end
+    object PnlEndereco: TPanel
+      Left = 425
+      Top = 11
+      Width = 264
+      Height = 41
+      BevelOuter = bvNone
+      Color = clWhite
+      ParentBackground = False
+      TabOrder = 1
+      Visible = False
+      object Label1: TLabel
+        Left = 7
+        Top = 13
+        Width = 14
+        Height = 15
+        Caption = 'UF'
+      end
+      object Label2: TLabel
+        Left = 108
+        Top = 13
+        Width = 37
+        Height = 15
+        Caption = 'Cidade'
+      end
+      object EdtCidade: TEdit
+        Left = 151
+        Top = 10
+        Width = 107
+        Height = 23
+        TabOrder = 1
+      end
+      object CbUf: TComboBox
+        Left = 27
+        Top = 10
+        Width = 70
+        Height = 23
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 0
+        Text = 'AC'
+        Items.Strings = (
+          'AC'
+          'AL'
+          'AP'
+          'AM'
+          'BA'
+          'CE'
+          'ES'
+          'GO'
+          'MA'
+          'MT'
+          'MS'
+          'MG'
+          'PA'
+          'PB'
+          'PR'
+          'PE'
+          'PI'
+          'RJ'
+          'RN'
+          'RS'
+          'RO'
+          'RR'
+          'SC'
+          'SP'
+          'SE'
+          'TO'
+          'DF')
+      end
+    end
+    object GroupBox1: TGroupBox
+      Left = 8
+      Top = 11
+      Width = 148
+      Height = 37
+      Caption = 'Buscar por'
+      TabOrder = 2
+      object RbCep: TRadioButton
+        Left = 14
+        Top = 16
+        Width = 51
+        Height = 17
+        Caption = 'Cep'
+        Checked = True
+        TabOrder = 0
+        TabStop = True
+        OnClick = RbCepClick
+      end
+      object RbEndereco: TRadioButton
+        Left = 71
+        Top = 16
+        Width = 113
+        Height = 17
+        Caption = 'Endere'#231'o'
+        TabOrder = 1
+        OnClick = RbEnderecoClick
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 162
+      Top = 11
+      Width = 122
+      Height = 37
+      Caption = 'Tipo Busca'
+      TabOrder = 4
+      object RbJson: TRadioButton
+        Left = 14
+        Top = 16
+        Width = 51
+        Height = 17
+        Caption = 'Json'
+        Checked = True
+        TabOrder = 0
+        TabStop = True
+      end
+      object RbXml: TRadioButton
+        Left = 71
+        Top = 16
+        Width = 113
+        Height = 17
+        Caption = 'Xml'
+        TabOrder = 1
+      end
+    end
+  end
+  object GrdDados: TDBGrid
+    Left = 8
+    Top = 71
+    Width = 805
+    Height = 247
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    DataSource = DsDados
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+    ReadOnly = True
+    TabOrder = 1
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -12
+    TitleFont.Name = 'Segoe UI'
+    TitleFont.Style = []
+  end
+  object PnlBottom: TPanel
+    Left = 0
+    Top = 324
+    Width = 821
+    Height = 41
+    Align = alBottom
+    Color = clWhite
+    ParentBackground = False
+    TabOrder = 2
+  end
+  object BuscaCep: TBuscaCepController
+    TipoBusca = tpXML
+    Left = 504
+    Top = 168
+  end
+  object DsDados: TDataSource
+    Left = 424
+    Top = 176
+  end
+  object Dsuf: TDataSource
+    Left = 360
+    Top = 56
+  end
+end

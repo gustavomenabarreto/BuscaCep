@@ -1,0 +1,103 @@
+object DMCon: TDMCon
+  Height = 480
+  Width = 640
+  object FDCon: TFDConnection
+    Params.Strings = (
+      'Database=D:\Fontes\GustavoCep\bd\db.db'
+      'DriverID=sQLite')
+    Connected = True
+    LoginPrompt = False
+    Left = 144
+    Top = 48
+  end
+  object QryEndereco: TFDQuery
+    Connection = FDCon
+    SQL.Strings = (
+      'Select * from tab_endereco')
+    Left = 216
+    Top = 48
+    object QryEnderecoId: TFDAutoIncField
+      FieldName = 'Id'
+      Origin = 'Id'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = False
+    end
+    object QryEnderecoCep: TWideMemoField
+      FieldName = 'Cep'
+      Origin = 'Cep'
+      BlobType = ftWideString
+    end
+    object QryEnderecoLogradouro: TWideMemoField
+      FieldName = 'Logradouro'
+      Origin = 'Logradouro'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoComplemento: TWideMemoField
+      FieldName = 'Complemento'
+      Origin = 'Complemento'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoUnidade: TWideMemoField
+      FieldName = 'Unidade'
+      Origin = 'Unidade'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoBairro: TWideMemoField
+      FieldName = 'Bairro'
+      Origin = 'Bairro'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoLocalidade: TWideMemoField
+      FieldName = 'Localidade'
+      Origin = 'Localidade'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoUf: TWideMemoField
+      FieldName = 'Uf'
+      Origin = 'Uf'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoEstado: TWideMemoField
+      FieldName = 'Estado'
+      Origin = 'Estado'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoRegiao: TWideMemoField
+      FieldName = 'Regiao'
+      Origin = 'Regiao'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoIbge: TWideMemoField
+      FieldName = 'Ibge'
+      Origin = 'Ibge'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoGia: TWideMemoField
+      FieldName = 'Gia'
+      Origin = 'Gia'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoDdd: TWideMemoField
+      FieldName = 'Ddd'
+      Origin = 'Ddd'
+      BlobType = ftWideMemo
+    end
+    object QryEnderecoSiafi: TWideMemoField
+      FieldName = 'Siafi'
+      Origin = 'Siafi'
+      BlobType = ftWideMemo
+    end
+  end
+  object PrvEndereco: TDataSetProvider
+    DataSet = QryEndereco
+    Left = 273
+    Top = 48
+  end
+  object CdsEndereco: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'PrvEndereco'
+    Left = 328
+    Top = 47
+  end
+end

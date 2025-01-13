@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{5EAD36F8-296D-4354-B21E-140B0888D46D}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Componente\BuscaCep.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="AppBuscaCep.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="BuscaCep">
+        <MSBuild Projects="Componente\BuscaCep.dproj"/>
+    </Target>
+    <Target Name="BuscaCep:Clean">
+        <MSBuild Projects="Componente\BuscaCep.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BuscaCep:Make">
+        <MSBuild Projects="Componente\BuscaCep.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="AppBuscaCep">
+        <MSBuild Projects="AppBuscaCep.dproj"/>
+    </Target>
+    <Target Name="AppBuscaCep:Clean">
+        <MSBuild Projects="AppBuscaCep.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="AppBuscaCep:Make">
+        <MSBuild Projects="AppBuscaCep.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="BuscaCep;AppBuscaCep"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="BuscaCep:Clean;AppBuscaCep:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="BuscaCep:Make;AppBuscaCep:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

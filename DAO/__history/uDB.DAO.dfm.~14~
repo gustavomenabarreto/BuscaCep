@@ -1,0 +1,161 @@
+object DMCon: TDMCon
+  Height = 480
+  Width = 640
+  object FDCon: TFDConnection
+    Params.Strings = (
+      'Database=D:\Fontes\GustavoCep\bd\db.db'
+      'DriverID=sQLite')
+    Connected = True
+    LoginPrompt = False
+    Left = 144
+    Top = 48
+  end
+  object QryEndereco: TFDQuery
+    Connection = FDCon
+    SQL.Strings = (
+      'Select * from tab_endereco')
+    Left = 216
+    Top = 48
+    object QryEnderecoId: TFDAutoIncField
+      FieldName = 'Id'
+      Origin = 'Id'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = False
+    end
+    object QryEnderecoCep: TStringField
+      FieldName = 'Cep'
+      Origin = 'Cep'
+      Size = 10
+    end
+    object QryEnderecoLogradouro: TStringField
+      FieldName = 'Logradouro'
+      Origin = 'Logradouro'
+      Size = 100
+    end
+    object QryEnderecoComplemento: TStringField
+      FieldName = 'Complemento'
+      Origin = 'Complemento'
+      Size = 50
+    end
+    object QryEnderecoUnidade: TStringField
+      FieldName = 'Unidade'
+      Origin = 'Unidade'
+      Size = 10
+    end
+    object QryEnderecoBairro: TStringField
+      FieldName = 'Bairro'
+      Origin = 'Bairro'
+      Size = 100
+    end
+    object QryEnderecoLocalidade: TStringField
+      FieldName = 'Localidade'
+      Origin = 'Localidade'
+      Size = 100
+    end
+    object QryEnderecoUf: TStringField
+      FieldName = 'Uf'
+      Origin = 'Uf'
+      FixedChar = True
+      Size = 2
+    end
+    object QryEnderecoEstado: TStringField
+      FieldName = 'Estado'
+      Origin = 'Estado'
+      Size = 100
+    end
+    object QryEnderecoRegiao: TStringField
+      FieldName = 'Regiao'
+      Origin = 'Regiao'
+      Size = 100
+    end
+    object QryEnderecoIbge: TStringField
+      FieldName = 'Ibge'
+      Origin = 'Ibge'
+      Size = 10
+    end
+    object QryEnderecoGia: TStringField
+      FieldName = 'Gia'
+      Origin = 'Gia'
+      Size = 10
+    end
+    object QryEnderecoDdd: TStringField
+      FieldName = 'Ddd'
+      Origin = 'Ddd'
+      FixedChar = True
+      Size = 3
+    end
+    object QryEnderecoSiafi: TStringField
+      FieldName = 'Siafi'
+      Origin = 'Siafi'
+      Size = 100
+    end
+  end
+  object PrvEndereco: TDataSetProvider
+    DataSet = QryEndereco
+    Left = 273
+    Top = 48
+  end
+  object CdsEndereco: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'PrvEndereco'
+    Left = 328
+    Top = 47
+    object CdsEnderecoId: TAutoIncField
+      FieldName = 'Id'
+      ReadOnly = True
+    end
+    object CdsEnderecoCep: TWideMemoField
+      FieldName = 'Cep'
+      BlobType = ftWideString
+    end
+    object CdsEnderecoLogradouro: TWideMemoField
+      FieldName = 'Logradouro'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoComplemento: TWideMemoField
+      FieldName = 'Complemento'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoUnidade: TWideMemoField
+      FieldName = 'Unidade'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoBairro: TWideMemoField
+      FieldName = 'Bairro'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoLocalidade: TWideMemoField
+      FieldName = 'Localidade'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoUf: TWideMemoField
+      FieldName = 'Uf'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoEstado: TWideMemoField
+      FieldName = 'Estado'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoRegiao: TWideMemoField
+      FieldName = 'Regiao'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoIbge: TWideMemoField
+      FieldName = 'Ibge'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoGia: TWideMemoField
+      FieldName = 'Gia'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoDdd: TWideMemoField
+      FieldName = 'Ddd'
+      BlobType = ftWideMemo
+    end
+    object CdsEnderecoSiafi: TWideMemoField
+      FieldName = 'Siafi'
+      BlobType = ftWideMemo
+    end
+  end
+end

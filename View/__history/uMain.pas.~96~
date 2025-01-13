@@ -1,0 +1,253 @@
+unit uMain;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Datasnap.DBClient,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Busca.Cep.Controller, Data.DB, Vcl.Grids, Vcl.DBGrids, Vcl.DBCtrls,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client;
+
+type
+  TFrBuscaCep = class(TForm)
+    PnlHeader: TPanel;
+    RbCep: TRadioButton;
+    RbEndereco: TRadioButton;
+    EdtCep: TEdit;
+    BtnBuscar: TButton;
+    BuscaCep: TBuscaCepController;
+    GrdDados: TDBGrid;
+    DsDados: TDataSource;
+    EdtCidade: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    LblCepRua: TLabel;
+    GroupBox1: TGroupBox;
+    PnlEndereco: TPanel;
+    Dsuf: TDataSource;
+    CbUf: TComboBox;
+    PnlBottom: TPanel;
+    GroupBox2: TGroupBox;
+    RbJson: TRadioButton;
+    RbXml: TRadioButton;
+    procedure BtnBuscarClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure RbCepClick(Sender: TObject);
+    procedure RbEnderecoClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure EdtCepExit(Sender: TObject);
+  private
+    FCdsDados: TFDMemTable;
+    procedure CriarDataset;
+    procedure CarregarHistoricoEndereco;
+    function Validacoes: Boolean;
+    function EncontrouPesquisaCds: Boolean;
+  public
+    { Public declarations }
+  end;
+
+var
+  FrBuscaCep: TFrBuscaCep;
+
+implementation
+
+{$R *.dfm}
+
+uses
+  Busca.Cep.ViaCep.Model,
+  uCep.DB.Controller,
+  MaskUtils;
+
+procedure TFrBuscaCep.BtnBuscarClick(Sender: TObject);
+var
+  lItem: TViacepModel;
+  lLista: TListViacep;
+begin
+  if not Validacoes then
+    Exit;
+
+  if EncontrouPesquisaCds then
+  begin
+    if MessageDlg
+      ('Este cep, já consta na base de dados, gostaria de realizar uma nova consulta?'+ slinebreak+ 'Os dados existente serão atualizados!',
+      mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+      Exit;
+  end;
+
+  if RbJson.Checked then
+    BuscaCep.TipoBusca := tpJson
+  else
+    BuscaCep.TipoBusca := tpXML;
+
+  if RbCep.Checked then
+    lLista := BuscaCep.BuscarCep(EdtCep.Text)
+  else
+    lLista := BuscaCep.BuscarCep(CbUf.Text + '/' + EdtCidade.Text + '/' +
+      EdtCep.Text);
+
+  if not Assigned(lLista) or (lLista.Items[0].Cep.Trim.IsEmpty) then
+    Exit;
+
+  FCdsDados.DisableControls;
+  try
+    for var I := 0 to lLista.Count - 1 do
+    begin
+      lItem := lLista.Items[I];
+
+      if FCdsDados.Locate('Cep', lItem.Cep, []) then
+      begin
+        FCdsDados.Edit
+      end
+      else
+        FCdsDados.Append;
+
+      FCdsDados.FieldByName('Cep').AsString := lItem.Cep;
+      FCdsDados.FieldByName('Logradouro').AsString := lItem.Logradouro;
+      FCdsDados.FieldByName('Complemento').AsString := lItem.Complemento;
+      FCdsDados.FieldByName('Unidade').AsString := lItem.Unidade;
+      FCdsDados.FieldByName('Bairro').AsString := lItem.Bairro;
+      FCdsDados.FieldByName('Localidade').AsString := lItem.Localidade;
+      FCdsDados.FieldByName('Uf').AsString := lItem.Uf;
+      FCdsDados.FieldByName('Estado').AsString := lItem.Estado;
+      FCdsDados.FieldByName('Regiao').AsString := lItem.Regiao;
+      FCdsDados.FieldByName('Ibge').AsString := lItem.Ibge;
+      FCdsDados.FieldByName('Gia').AsString := lItem.Gia;
+      FCdsDados.FieldByName('Ddd').AsString := lItem.Ddd;
+      FCdsDados.FieldByName('Siafi').AsString := lItem.Siafi;
+      FCdsDados.Post;
+    end;
+
+    TCepDBController.SalverCeps(TClientDataSet(FCdsDados));
+  finally
+    FCdsDados.EnableControls;
+    lLista.Free;
+  end;
+end;
+
+function TFrBuscaCep.EncontrouPesquisaCds: Boolean;
+begin
+  if RbCep.Checked then
+    Result := FCdsDados.Locate('Cep', EdtCep.Text, [])
+  else
+  begin
+    FCdsDados.Filter :=
+      Format('Logradouro LIKE ''%%%s'' AND Localidade = ''%s'' AND Uf = ''%s''',
+      [EdtCep.Text, EdtCidade.Text, CbUf.Text]);
+
+    FCdsDados.Filtered := True;
+    var
+    Idx := FCdsDados.RecNo;
+    Result := FCdsDados.RecordCount > 0;
+    FCdsDados.Filtered := false;
+    FCdsDados.RecNo := Idx;
+  end;
+end;
+
+function TFrBuscaCep.Validacoes: Boolean;
+begin
+  if RbCep.Checked then
+  begin
+    Result := EdtCep.Text <> '';
+
+    if not Result then
+      ShowMessage('Preencha o Cep, para realizar a busca!');
+
+    Result := Length(EdtCep.Text) = 9;
+
+    if not Result then
+      ShowMessage('Informe um cep valido!');
+  end
+  else if RbEndereco.Checked then
+  begin
+    Result := EdtCep.Text <> '';
+
+    if not Result then
+      ShowMessage('Preencha o nome da rua, para realizar a busca!');
+
+    Result := Length(EdtCep.Text) > 3;
+
+    if not Result then
+      ShowMessage('Informe um nome de rua valido!');
+
+    Result := (CbUf.ItemIndex > -1) or (CbUf.Text <> '');
+
+    if not Result then
+      ShowMessage('Informe a UF!');
+
+    Result := (EdtCidade.Text <> '') or (Length(EdtCidade.Text) > 3);
+
+    if not Result then
+      ShowMessage('Informe uma cidade valida!');
+  end;
+end;
+
+procedure TFrBuscaCep.CriarDataset;
+begin
+  FCdsDados := TFDMemTable.Create(nil);
+
+  with FCdsDados.FieldDefs do
+  begin
+    Add('Cep', ftString, 10);
+    Add('Logradouro', ftString, 100);
+    Add('Complemento', ftString, 50);
+    Add('Unidade', ftString, 10);
+    Add('Bairro', ftString, 50);
+    Add('Localidade', ftString, 50);
+    Add('Uf', ftString, 2);
+    Add('Estado', ftString, 50);
+    Add('Regiao', ftString, 20);
+    Add('Ibge', ftString, 10);
+    Add('Gia', ftString, 10);
+    Add('Ddd', ftString, 3);
+    Add('Siafi', ftString, 10);
+  end;
+  FCdsDados.CreateDataSet;
+  DsDados.DataSet := FCdsDados;
+end;
+
+procedure TFrBuscaCep.EdtCepExit(Sender: TObject);
+const
+  MascaraCEP = '!99999-999;0;_';
+begin
+  if RbCep.Checked then
+    EdtCep.Text := FormatMaskText(MascaraCEP, EdtCep.Text)
+end;
+
+procedure TFrBuscaCep.CarregarHistoricoEndereco;
+begin
+  FCdsDados.CopyDataSet(TCepDBController.BuscarHistoricoEnderecos,
+    [coStructure, coRestart, coAppend]);
+end;
+
+procedure TFrBuscaCep.FormDestroy(Sender: TObject);
+begin
+  FCdsDados.Free;
+end;
+
+procedure TFrBuscaCep.FormShow(Sender: TObject);
+begin
+  CriarDataset;
+  CarregarHistoricoEndereco;
+end;
+
+procedure TFrBuscaCep.RbCepClick(Sender: TObject);
+begin
+  LblCepRua.Caption := 'Cep';
+  PnlEndereco.Visible := false;
+  EdtCep.NumbersOnly := True;
+  EdtCep.Text := '';
+end;
+
+procedure TFrBuscaCep.RbEnderecoClick(Sender: TObject);
+begin
+  LblCepRua.Caption := 'Rua';
+  PnlEndereco.Visible := True;
+  EdtCep.NumbersOnly := false;
+  EdtCep.Text := '';
+end;
+
+end.
