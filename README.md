@@ -29,10 +29,13 @@
 **DAO**: Responsável por configuração e acesso ao banco.
 
 **Como Utilizar**
+
   **Instalação do Componente:**
+  
     Ir em Tool > Option > Library Path e adicionar as pastas dos fontes do componente (Controller, Services, Module, Model, Repository).
   
   **Configuração do Programa:**
+  
     Ir na DAO.
     Abrir o componente de conexão (FdConn) e configurar o caminho do banco para a pasta DB, arquivo db.db.
 
@@ -43,6 +46,6 @@
     Busca realizada primeiro no histórico. Caso não haja no histórico, buscará na API e salvará no histórico e no banco de dados.
     Se o endereço já existir, perguntará se deseja atualizar.
 
-**Desempenho:**
-Toda manipulação ocorre em memória para maior performance, utilizando Listas e CDS.
-A persistência no banco ocorre uma vez ao fechar a aplicação.
+  **Desempenho:**
+  Toda manipulação ocorre em memória para maior performance, utilizando Listas e CDS.
+  A persistência no banco ocorre uma vez ao fechar a aplicação.
