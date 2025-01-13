@@ -1,0 +1,56 @@
+unit Busca.Cep.Controller;
+
+interface
+
+uses
+  Classes,
+  BuscaCep.Services,
+  BuscaCep.Repository;
+
+ Type
+  TBuscaCepController = class(TComponent)
+    private
+      FIBuscaCepServices: IBuscaCepServices;
+    published
+      function BuscarCep (ACep:String): string;
+    public
+      constructor Create(AOwner: TComponent); override;
+      destructor Destroy;   override;
+  end;
+
+procedure Register;
+
+implementation
+
+uses
+  System.SysUtils;
+
+{ TBuscaCepController }
+
+procedure Register;
+begin
+  RegisterComponents('BuscaCep', [TBuscaCepController]);
+end;
+
+function TBuscaCepController.BuscarCep(ACep: string): string;
+begin
+  FIBuscaCepServices := TBuscaCepServices.Create(TBuscaCepRepository.Create);
+  try
+    Result := FIBuscaCepServices.GetCep(ACep);
+  finally
+    FIBuscaCepServices := Nil;
+  end;
+end;
+
+constructor TBuscaCepController.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TBuscaCepController.Destroy;
+begin
+  FIBuscaCepServices := Nil;
+  inherited;
+end;
+
+end.

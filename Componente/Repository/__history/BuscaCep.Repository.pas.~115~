@@ -1,0 +1,217 @@
+unit BuscaCep.Repository;
+
+interface
+
+uses
+  System.Classes,
+  System.Generics.Collections,
+  REST.Json,
+  Gerador.Logs,
+  Busca.Cep.Viacep.Model,
+  REST.Types, REST.Client,
+  IdURI, System.SysUtils, Vcl.Dialogs,
+  Xml.XMLDoc, Xml.XMLIntf;
+
+type
+  IBuscaCepRepository<T> = interface
+    ['{D60B0B13-9EC9-446A-8BD9-58778D14F394}']
+    function GetCep(ACep: string): T;
+    function GetTipoBusca: TTipoBusca;
+    procedure SetTipoBusca(const Value: TTipoBusca);
+
+    property TipoBusca: TTipoBusca read GetTipoBusca write SetTipoBusca;
+  end;
+
+  TTipoBuscaHelper = record Helper for TTipoBusca
+    function ToString: string;
+  end;
+
+  TBuscaCepRepository = class(TInterfacedObject,
+    IBuscaCepRepository<TListViacep>)
+  private const
+    URL_VIACEP = 'https://viacep.com.br/ws/';
+
+  var
+    FRESTRequest: TRESTRequest;
+    FRESTClient: TRESTClient;
+
+    function DesserializarXMLParaDTO(const AXml: string): TListViacep;
+    function GetTipoBusca: TTipoBusca;
+    procedure SetTipoBusca(const Value: TTipoBusca);
+  public
+    function GetCep(ACep: string): TListViacep;
+
+    property TipoBusca: TTipoBusca read GetTipoBusca write SetTipoBusca;
+
+    constructor Create();
+    destructor Destroy; override;
+
+  end;
+
+implementation
+
+uses
+  StrUtils;
+
+{ TTBuscaCepRepository<T> }
+constructor TBuscaCepRepository.Create();
+begin
+  FRESTClient := TRESTClient.Create(Nil);
+  FRESTRequest := TRESTRequest.Create(FRESTClient);
+  FRESTClient.Accept := '*/*';
+  FRESTClient.AcceptCharset := 'utf-8';
+  FRESTClient.AllowCookies := true;
+  FRESTRequest.Client := FRESTClient;
+end;
+
+destructor TBuscaCepRepository.Destroy;
+begin
+  FRESTRequest.Free;
+  FRESTClient.Free;
+  inherited;
+end;
+
+function TBuscaCepRepository.GetCep(ACep: string): TListViacep;
+var
+  lbSucess: Boolean;
+  lContent: String;
+begin
+  lbSucess := false;
+  try
+    FRESTClient.BaseURL := TIdURI.URLEncode(URL_VIACEP + ACep.Replace('-', '') + TipoBusca.ToString);
+
+    FRESTRequest.Method := rmGET;
+    FRESTRequest.Execute;
+
+    case TipoBusca of
+      tpXML:
+        begin
+          Result := DesserializarXMLParaDTO(FRESTRequest.Response.Content);
+        end;
+      tpJson:
+        begin
+          lContent := ifthen(FRESTRequest.Response.JSONText.Contains('['),
+            FRESTRequest.Response.JSONText,
+            '[' + FRESTRequest.Response.JSONText + ']');
+
+          Result := TViacepModel.FromJsonArray(lContent);
+        end;
+    end;
+
+    lbSucess := Assigned(Result) and (not Result[0].Cep.Trim.IsEmpty);
+
+    if not lbSucess then
+      MessageDlg
+        ('O Cep informado, não foi encontrado, verifique se o mesmo, existe!',
+        TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], 0);
+
+  except
+    on E: Exception do
+    begin
+      TLog.GravarLog('TBuscaCepRepository.GetCep: TClientSocket<TApiCepModel> '
+        + E.Message);
+    end;
+  end;
+end;
+
+function TBuscaCepRepository.DesserializarXMLParaDTO(const AXml: string)
+  : TListViacep;
+var
+  XMLDoc: IXMLDocument;
+  RootNode, ItemNode, EnderecosNode: IXMLNode;
+  lItems: TViacepModel;
+  I: Integer;
+
+  procedure AdicionarItem(AXml: IXMLNode);
+  begin
+    lItems := TViacepModel.Create;
+
+    lItems.Cep := AXml.ChildNodes['cep'].Text;
+    lItems.Logradouro := AXml.ChildNodes['logradouro'].Text;
+    lItems.Complemento := AXml.ChildNodes['complemento'].Text;
+    lItems.Unidade := AXml.ChildNodes['unidade'].Text;
+    lItems.Bairro := AXml.ChildNodes['bairro'].Text;
+    lItems.Localidade := AXml.ChildNodes['localidade'].Text;
+    lItems.Uf := AXml.ChildNodes['uf'].Text;
+    lItems.Estado := AXml.ChildNodes['estado'].Text;
+    lItems.Regiao := AXml.ChildNodes['regiao'].Text;
+    lItems.Ibge := AXml.ChildNodes['ibge'].Text;
+    lItems.Gia := AXml.ChildNodes['gia'].Text;
+    lItems.Ddd := AXml.ChildNodes['ddd'].Text;
+    lItems.Siafi := AXml.ChildNodes['siafi'].Text;
+    Result.Add(lItems);
+  end;
+
+begin
+  XMLDoc := LoadXMLData(AXml);
+  RootNode := XMLDoc.DocumentElement;
+  Result := TListViacep.Create;
+  EnderecosNode := RootNode.ChildNodes.FindNode('enderecos');
+  try
+    if EnderecosNode = nil then // Apenas um item
+    begin
+      AdicionarItem(RootNode);
+//      lItems := TViacepModel.Create;
+//
+//      lItems.Cep := RootNode.ChildNodes['cep'].Text;
+//      lItems.Logradouro := RootNode.ChildNodes['logradouro'].Text;
+//      lItems.Complemento := RootNode.ChildNodes['complemento'].Text;
+//      lItems.Unidade := RootNode.ChildNodes['unidade'].Text;
+//      lItems.Bairro := RootNode.ChildNodes['bairro'].Text;
+//      lItems.Localidade := RootNode.ChildNodes['localidade'].Text;
+//      lItems.Uf := RootNode.ChildNodes['uf'].Text;
+//      lItems.Estado := RootNode.ChildNodes['estado'].Text;
+//      lItems.Regiao := RootNode.ChildNodes['regiao'].Text;
+//      lItems.Ibge := RootNode.ChildNodes['ibge'].Text;
+//      lItems.Gia := RootNode.ChildNodes['gia'].Text;
+//      lItems.Ddd := RootNode.ChildNodes['ddd'].Text;
+//      lItems.Siafi := RootNode.ChildNodes['siafi'].Text;
+//      Result.Add(lItems);
+    end
+    else
+      for I := 0 to RootNode.ChildNodes.Count - 1 do // Lista de endereco
+      begin
+        for var J := 0 to EnderecosNode.ChildNodes.Count - 1 do
+        begin
+          ItemNode := EnderecosNode.ChildNodes[I];
+          if ItemNode.NodeName = 'endereco' then
+          begin
+            AdicionarItem(ItemNode);
+//            lItems := TViacepModel.Create;
+//
+//            lItems.Cep := ItemNode.ChildNodes['cep'].Text;
+//            lItems.Logradouro := ItemNode.ChildNodes['logradouro'].Text;
+//            lItems.Complemento := ItemNode.ChildNodes['complemento'].Text;
+//            lItems.Unidade := ItemNode.ChildNodes['unidade'].Text;
+//            lItems.Bairro := ItemNode.ChildNodes['bairro'].Text;
+//            lItems.Localidade := ItemNode.ChildNodes['localidade'].Text;
+//            lItems.Uf := ItemNode.ChildNodes['uf'].Text;
+//            lItems.Estado := ItemNode.ChildNodes['estado'].Text;
+//            lItems.Regiao := ItemNode.ChildNodes['regiao'].Text;
+//            lItems.Ibge := ItemNode.ChildNodes['ibge'].Text;
+//            lItems.Gia := ItemNode.ChildNodes['gia'].Text;
+//            lItems.Ddd := ItemNode.ChildNodes['ddd'].Text;
+//            lItems.Siafi := ItemNode.ChildNodes['siafi'].Text;
+//            Result.Add(lItems);
+          end;
+        end;
+      end;
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+{ TTipoBuscaHelper }
+
+function TTipoBuscaHelper.ToString: string;
+begin
+  case self of
+    tpXML:
+      Result := '/xml/';
+    tpJson:
+      Result := '/json/';
+  end;
+end;
+
+end.

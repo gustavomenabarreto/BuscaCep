@@ -1,0 +1,136 @@
+unit Busca.Cep.ViaCep.Model;
+
+interface
+
+uses
+  System.Generics.Collections, REST.Json.Types,
+  REST.Json, System.Json, System.SysUtils, Datasnap.DBClient;
+
+type
+  TViacepModel = class
+  private
+    FBairro: string;
+    FCep: string;
+    FComplemento: string;
+    FDdd: string;
+    FEstado: string;
+    FGia: string;
+    FIbge: string;
+    FLocalidade: string;
+    FLogradouro: string;
+    FRegiao: string;
+    FSiafi: string;
+    FUf: string;
+    FUnidade: string;
+  published
+    property Bairro: string read FBairro write FBairro;
+    property Cep: string read FCep write FCep;
+    property Complemento: string read FComplemento write FComplemento;
+    property Ddd: string read FDdd write FDdd;
+    property Estado: string read FEstado write FEstado;
+    property Gia: string read FGia write FGia;
+    property Ibge: string read FIbge write FIbge;
+    property Localidade: string read FLocalidade write FLocalidade;
+    property Logradouro: string read FLogradouro write FLogradouro;
+    property Regiao: string read FRegiao write FRegiao;
+    property Siafi: string read FSiafi write FSiafi;
+    property Uf: string read FUf write FUf;
+    property Unidade: string read FUnidade write FUnidade;
+  end;
+
+  TListViacep = TObjectList<TViacepModel>;
+
+  TItemsHelper = class helper for TViacepModel
+  public
+    class function FromJsonArray(const AJsonString: string): TListViacep;
+    class function ToDataSet(ALista: TListViacep): TClientDataSet;
+  end;
+
+implementation
+
+uses
+  Data.DB;
+
+class function TItemsHelper.FromJsonArray(const AJsonString: string): TListViacep;
+var
+  lJsonArray: TJSONArray;
+  lViaCepItems: TListViacep;
+  I: Integer;
+begin
+  lViaCepItems := TListViacep.Create;
+  try
+    lJsonArray := TJSONObject.ParseJSONValue(AJsonString) as TJSONArray;
+    if Assigned(lJsonArray) then
+      try
+        for I := 0 to lJsonArray.Count - 1 do
+        begin
+          lViaCepItems.Add(TJson.JsonToObject<TViacepModel>(lJsonArray.Items[I]
+            .ToString));
+        end;
+      finally
+        lJsonArray.Free;
+      end;
+    Result := lViaCepItems;
+  except
+    lViaCepItems.Free;
+    raise;
+  end;
+end;
+
+class function TItemsHelper.ToDataSet(ALista: TListViacep): TClientDataSet;
+var
+  I: Integer;
+  Item: TViacepModel;
+
+  procedure CriarFields;
+  begin
+    Result := TClientDataSet.Create(nil);
+
+    with Result.FieldDefs do
+    begin
+      Add('Cep', ftString, 10);
+      Add('Logradouro', ftString, 100);
+      Add('Complemento', ftString, 50);
+      Add('Unidade', ftString, 10);
+      Add('Bairro', ftString, 50);
+      Add('Localidade', ftString, 50);
+      Add('Uf', ftString, 2);
+      Add('Estado', ftString, 50);
+      Add('Regiao', ftString, 20);
+      Add('Ibge', ftString, 10);
+      Add('Gia', ftString, 10);
+      Add('Ddd', ftString, 3);
+      Add('Siafi', ftString, 10);
+    end;
+    Result.CreateDataSet;
+  end;
+
+begin
+  Result.DisableControls;
+  try
+    Result.EmptyDataSet;
+    for I := 0 to ALista.Count - 1 do
+    begin
+      Item := ALista.Items[I];
+      Result.Append;
+      Result.FieldByName('Cep').AsString := Item.Cep;
+      Result.FieldByName('Logradouro').AsString := Item.Logradouro;
+      Result.FieldByName('Complemento').AsString := Item.Complemento;
+      Result.FieldByName('Unidade').AsString := Item.Unidade;
+      Result.FieldByName('Bairro').AsString := Item.Bairro;
+      Result.FieldByName('Localidade').AsString := Item.Localidade;
+      Result.FieldByName('Uf').AsString := Item.Uf;
+      Result.FieldByName('Estado').AsString := Item.Estado;
+      Result.FieldByName('Regiao').AsString := Item.Regiao;
+      Result.FieldByName('Ibge').AsString := Item.Ibge;
+      Result.FieldByName('Gia').AsString := Item.Gia;
+      Result.FieldByName('Ddd').AsString := Item.Ddd;
+      Result.FieldByName('Siafi').AsString := Item.Siafi;
+      Result.Post;
+    end;
+  finally
+    Result.EnableControls;
+  end;
+end;
+
+end.

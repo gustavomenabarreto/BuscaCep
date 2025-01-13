@@ -1,0 +1,78 @@
+unit Busca.Cep.ViaCep.Model;
+
+interface
+
+uses
+  System.Generics.Collections, REST.Json.Types,
+  REST.Json, System.Json, System.SysUtils;
+
+type
+  TViacepModel = class
+  private
+    FBairro: string;
+    FCep: string;
+    FComplemento: string;
+    FDdd: string;
+    FEstado: string;
+    FGia: string;
+    FIbge: string;
+    FLocalidade: string;
+    FLogradouro: string;
+    FRegiao: string;
+    FSiafi: string;
+    FUf: string;
+    FUnidade: string;
+  published
+    property Bairro: string read FBairro write FBairro;
+    property Cep: string read FCep write FCep;
+    property Complemento: string read FComplemento write FComplemento;
+    property Ddd: string read FDdd write FDdd;
+    property Estado: string read FEstado write FEstado;
+    property Gia: string read FGia write FGia;
+    property Ibge: string read FIbge write FIbge;
+    property Localidade: string read FLocalidade write FLocalidade;
+    property Logradouro: string read FLogradouro write FLogradouro;
+    property Regiao: string read FRegiao write FRegiao;
+    property Siafi: string read FSiafi write FSiafi;
+    property Uf: string read FUf write FUf;
+    property Unidade: string read FUnidade write FUnidade;
+  end;
+
+  TListViacep = TObjectList<TViacepModel>;
+
+  TItemsHelper = class helper for TViacepModel
+  public
+    class function FromJsonArray(const AJsonString: string): TListViacep;
+  end;
+
+implementation
+
+uses
+  Data.DB;
+
+class function TItemsHelper.FromJsonArray(const AJsonString: string): TListViacep;
+var
+  lJsonArray: TJSONArray;
+  lViaCepItems: TListViacep;
+  I: Integer;
+begin
+  lViaCepItems := TListViacep.Create;
+  try
+    lJsonArray := TJSONObject.ParseJSONValue(AJsonString) as TJSONArray;
+    if Assigned(lJsonArray) then
+      try
+        for I := 0 to lJsonArray.Count - 1 do
+        begin
+          lViaCepItems.Add(TJson.JsonToObject<TViacepModel>(lJsonArray.Items[I]
+            .ToString));
+        end;
+      finally
+        lJsonArray.Free;
+      end;
+    Result := lViaCepItems;
+  except
+    lViaCepItems.Free;
+    raise;
+  end;
+end;
+end.
