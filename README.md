@@ -17,11 +17,15 @@
 **Observação:** Estes padrões (Repository e Services) ajudam a desacoplar a lógica da camada Model da aplicação. Com a aplicação do Repository e Services, a Model passa a ser um DTO apenas.
 
 **Estrutura da Aplicação**
+
 **MVC**
 
 **View**: Camada visual.
+
 **Controller**: Intermediário entre view e model.
+
 **Model**: Usada para aplicar regras de negócio.
+
 **DAO**: Responsável por configuração e acesso ao banco.
 
 **Como Utilizar**
